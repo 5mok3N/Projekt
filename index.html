@@ -3,16 +3,11 @@
 <head>
   <meta charset="utf-8">
   <title>Lokalizacja i warstwy - 10397</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css">
   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
   <style>
-    .myPopup .leaflet-popup-content-wrapper,
-    .myPopup .leaflet-popup-tip {
-      background: #333;
-      color: #fff;
-    }
     #coordPanel {
       position: absolute;
       top: 10px;
@@ -23,8 +18,8 @@
       font-family: Arial, sans-serif;
     }
     #map {
-      width: 900px; 
-      height: 600px; 
+      width: 900px;
+      height: 600px;
       border: 1px solid #aaa;
     }
   </style>
@@ -33,20 +28,12 @@
   <h2>Moja mapa - student nr 10397</h2>
   <div id="map"></div>
   <div id="coordPanel">Lat: ---, Lng: ---</div>
-
   <script>
-    const map = L.map('map', {
-      center: [52.231838, 21.006724],
-      zoom: 12
-    });
-
+    const map = L.map('map', {center: [52.231838, 21.006724], zoom: 12});
     const osmLayer = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        attribution: '© OpenStreetMap'
-      }
+      {attribution: '© OpenStreetMap'}
     ).addTo(map);
-
     const wmsOrto = L.tileLayer.wms(
       'https://mapy.geoportal.gov.pl/wss/service/PZGIK/ORTO/WMS/StandardResolution',
       {
@@ -57,7 +44,6 @@
         attribution: 'Dane: © Geoportal Orto'
       }
     );
-
     const wmsTopo = L.tileLayer.wms(
       'https://mapy.geoportal.gov.pl/wss/service/img/guest/TOPO/MapServer/WMSServer',
       {
@@ -68,14 +54,12 @@
         attribution: 'Dane: © Geoportal Topo'
       }
     );
-
     const circleMarker = L.circle([52.232, 21.00], {
       radius: 300,
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.4
     }).bindPopup('Okrąg').addTo(map);
-
     const polygon = L.polygon([
       [52.23, 21.005],
       [52.232, 21.008],
@@ -85,7 +69,6 @@
       fillColor: 'green',
       fillOpacity: 0.2
     }).bindPopup('Polygon').addTo(map);
-
     const rectangle = L.rectangle([
       [52.235, 21.010],
       [52.238, 21.015]
@@ -93,49 +76,43 @@
       color: 'blue',
       weight: 2
     }).bindPopup('Prostokąt').addTo(map);
-
     let geojsonLayer;
-
     fetch('data/mojaWarstwa.geojson')
-      .then(response => response.json())
-      .then(data => {
-        geojsonLayer = L.geoJSON(data, {
-          onEachFeature: (feature, layer) => {
-            layer.bindTooltip(feature.properties.name);
-            layer.bindPopup(`<b>${feature.properties.name}</b><br/>${feature.properties.opis}`);
+      .then(r => r.json())
+      .then(d => {
+        geojsonLayer = L.geoJSON(d, {
+          onEachFeature: (f, l) => {
+            l.bindTooltip(f.properties.name);
+            l.bindPopup(`<b>${f.properties.name}</b><br/>${f.properties.opis}`);
           },
-          style: {
-            color: 'orange',
-            weight: 2
-          }
+          style: {color: 'orange', weight: 2}
         }).addTo(map);
-
-        if (geojsonLayer.getBounds) {
-          map.fitBounds(geojsonLayer.getBounds());
-        }
+        if (geojsonLayer.getBounds) map.fitBounds(geojsonLayer.getBounds());
       })
-      .catch(error => console.error('Błąd wczytywania GeoJSON:', error));
-
+      .catch(e => console.error('Błąd wczytywania GeoJSON:', e));
     const baseMaps = {
       'OSM': osmLayer,
       'Orto (WMS)': wmsOrto,
       'Topo (WMS)': wmsTopo
     };
-
     const overlays = {
       'Okrąg': circleMarker,
       'Poligon': polygon,
       'Prostokąt': rectangle
     };
-
     L.control.layers(baseMaps, overlays).addTo(map);
-
     map.on('mousemove', e => {
-      document.getElementById('coordPanel').innerHTML =
-        'Lat: ' + e.latlng.lat.toFixed(5) + ', Lng: ' + e.latlng.lng.toFixed(5);
+      document.getElementById('coordPanel').textContent =
+        `Lat: ${e.latlng.lat.toFixed(5)}, Lng: ${e.latlng.lng.toFixed(5)}`;
     });
-
     L.control.scale().addTo(map);
+    L.Routing.control({
+      waypoints: [
+        L.latLng(52.232806520947, 20.98029825162136),
+        L.latLng(52.25803315953348, 20.59106030784273)
+      ],
+      position: 'topleft'
+    }).addTo(map);
   </script>
 </body>
 </html>
